@@ -63,6 +63,8 @@ private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
     
+    juce::dsp::Compressor<float> compressorModule;
+    
     
     
     

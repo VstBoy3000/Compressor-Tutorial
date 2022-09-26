@@ -24,23 +24,57 @@ treeState(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
     treeState.addParameterListener("input", this);
+    treeState.addParameterListener("threh", this);
+    treeState.addParameterListener("ratio", this);
+    treeState.addParameterListener("attck", this);
+    treeState.addParameterListener("release", this);
+    treeState.addParameterListener("output", this);
+    
+    
 }
 
 DspTempAudioProcessor::~DspTempAudioProcessor()
 {
     treeState.removeParameterListener("input", this);
+    treeState.removeParameterListener("threh", this);
+    treeState.removeParameterListener("ratio", this);
+    treeState.removeParameterListener("attck", this);
+    treeState.removeParameterListener("release", this);
+    treeState.removeParameterListener("output", this);
+    
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout DspTempAudioProcessor::createParameterLayout()
 {
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
+    //puting in the midle
     
-    auto pinput = std::make_unique<juce::AudioParameterFloat>("input", "Input", -24.0, 24.0, 0.0);
+    juce::NormalisableRange<float>attckRange = juce::NormalisableRange<float>();
+    attckRange.setSkewForCentre(50.0f);
+    
+    juce::NormalisableRange<float>releaseRange = juce::NormalisableRange<float>();
+    releaseRange.setSkewForCentre(160.0f);
+    
+
+    
+    auto pinput = std::make_unique<juce::AudioParameterFloat>("input", "Input", -60.0f, 24.0f, 0.0f);
+    auto pthreh = std::make_unique<juce::AudioParameterFloat>("threh", "Threh", -60.0f, 10.0f, 0.0f);
+    auto pratio = std::make_unique<juce::AudioParameterFloat>("ratio", "Ratio", 1.0f, 20.0f, 1.0f);
+    auto pattck = std::make_unique<juce::AudioParameterFloat>("attck", "Attck", attckRange, 50.0f);
+    auto prelease = std::make_unique<juce::AudioParameterFloat>("release", "Release", releaseRange, 160.0f);
+    auto poutput = std::make_unique<juce::AudioParameterFloat>("output", "Output", -60.0f, 24.0f, 0.0f);
+    auto pbypass = std::make_unique<juce::AudioParameterBool>("bypass", "Bypass", false);
 
     
     
     
     params.push_back(std::move(pinput));
+    params.push_back(std::move(pthreh));
+    params.push_back(std::move(pratio));
+    params.push_back(std::move(pattck));
+    params.push_back(std::move(prelease));
+    params.push_back(std::move(poutput));
+    params.push_back(std::move(pbypass));
 
     
     return { params.begin(), params.end() };
@@ -49,6 +83,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout DspTempAudioProcessor::creat
 
 void DspTempAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
 {
+    DBG(treeState.getRawParameterValue("input")->load());
+    DBG(treeState.getRawParameterValue("bypass")->load());
    
     
 }
@@ -118,8 +154,12 @@ void DspTempAudioProcessor::changeProgramName (int index, const juce::String& ne
 //==============================================================================
 void DspTempAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    juce::dsp::ProcessSpec spec;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.sampleRate = sampleRate;
+    spec.numChannels = getTotalNumInputChannels();
+    
+
 }
 
 void DspTempAudioProcessor::releaseResources()
