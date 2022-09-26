@@ -64,6 +64,9 @@ private:
     void parameterChanged (const juce::String& parameterID, float newValue) override;
     
     juce::dsp::Compressor<float> compressorModule;
+    juce::dsp::Gain<float> inputModule;
+    juce::dsp::Gain<float> outputModule;
+    void updatParameters();
     
     
     

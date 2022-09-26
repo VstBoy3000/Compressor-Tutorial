@@ -83,9 +83,22 @@ juce::AudioProcessorValueTreeState::ParameterLayout DspTempAudioProcessor::creat
 
 void DspTempAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
 {
-    DBG(treeState.getRawParameterValue("input")->load());
-    DBG(treeState.getRawParameterValue("bypass")->load());
+
+    
+    
+    updatParameters();
    
+    
+}
+
+void DspTempAudioProcessor::updatParameters()
+{
+    inputModule.setRampDurationSeconds(treeState.getRawParameterValue("input")->load());
+    outputModule.setRampDurationSeconds(treeState.getRawParameterValue("output")->load());
+    compressorModule.setThreshold(treeState.getRawParameterValue("threh")->load());
+    compressorModule.setRatio(treeState.getRawParameterValue("ratio")->load());
+    compressorModule.setAttack(treeState.getRawParameterValue("attck")->load());
+    compressorModule.setRelease(treeState.getRawParameterValue("release")->load());
     
 }
 
@@ -159,6 +172,14 @@ void DspTempAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.sampleRate = sampleRate;
     spec.numChannels = getTotalNumInputChannels();
     
+    inputModule.prepare(spec);
+    inputModule.setRampDurationSeconds(0.02);
+    outputModule.setRampDurationSeconds(0.02);
+    outputModule.prepare(spec);
+    compressorModule.prepare(spec);
+    
+    updatParameters();
+    
 
 }
 
@@ -199,6 +220,11 @@ void DspTempAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    
+    juce::dsp::AudioBlock<float>block {buffer};
+    inputModule.process(juce::dsp::ProcessContextReplacing<float>(block));
+    compressorModule.process(juce::dsp::ProcessContextReplacing<float>(block));
+    outputModule.process(juce::dsp::ProcessContextReplacing<float>(block));
 
 
 }
