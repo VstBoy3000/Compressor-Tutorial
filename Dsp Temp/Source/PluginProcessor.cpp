@@ -23,10 +23,12 @@ DspTempAudioProcessor::DspTempAudioProcessor()
 treeState(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
+    treeState.addParameterListener("input", this);
 }
 
 DspTempAudioProcessor::~DspTempAudioProcessor()
 {
+    treeState.removeParameterListener("input", this);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout DspTempAudioProcessor::createParameterLayout()
