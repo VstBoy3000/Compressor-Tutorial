@@ -34,15 +34,20 @@ juce::AudioProcessorValueTreeState::ParameterLayout DspTempAudioProcessor::creat
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
     
     auto pinput = std::make_unique<juce::AudioParameterFloat>("input", "Input", -24.0, 24.0, 0.0);
-    auto pwet = std::make_unique<juce::AudioParameterFloat>("mix", "Mix", 0.0f, 100.0f, 0.0f);
-    auto pbypass = std::make_unique<juce::AudioParameterBool>("bypass", "Bypass", false);
+
     
     
-    params.push_back(std::move(pbypass));
+    
     params.push_back(std::move(pinput));
-    params.push_back(std::move(pwet));
+
     
     return { params.begin(), params.end() };
+    
+}
+
+void DspTempAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
+{
+   
     
 }
 
